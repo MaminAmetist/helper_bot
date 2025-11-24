@@ -1,6 +1,5 @@
 venv
 .idea
-config
 .env
 chat_history.db
 runner_bot.log
