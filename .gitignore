@@ -3,3 +3,4 @@ venv
 .env
 chat_history.db
 runner_bot.log
+set_webhook.py

@@ -55,6 +55,12 @@ async def main() -> None:
 
     runner = web.AppRunner(app)
     await runner.setup()
+
+    # ВАЖНО — устанавливаем webhook
+    webhook_url = f"https://helper-bot-sudg.onrender.com{WEBHOOK_PATH}"
+    await bot.set_webhook(webhook_url, drop_pending_updates=True)
+    logging.info(f"Webhook set to: {webhook_url}")
+
     site = web.TCPSite(runner, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
     await site.start()
 
@@ -62,7 +68,3 @@ async def main() -> None:
 
     while True:
         await asyncio.sleep(3600)
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
