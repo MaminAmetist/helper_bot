@@ -34,20 +34,14 @@ async def handle_webhook(request):
 
 
 async def main() -> None:
-    logging.basicConfig(
-        level=logging.INFO, filemode='w', filename='runner_bot.log', encoding='UTF-8',
-        format='%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s'
-    )
+    logging.basicConfig(level=logging.INFO)
+
     init_db()
 
     dp.include_router(start_router)
     dp.include_router(dialog_router)
 
-    try:
-        WEB_SERVER_PORT = int(os.environ.get("PORT", 8080))
-    except ValueError:
-        WEB_SERVER_PORT = 8080
-
+    WEB_SERVER_PORT = int(os.environ.get("PORT", 8080))
     WEB_SERVER_HOST = "0.0.0.0"
 
     app = web.Application()
@@ -56,15 +50,19 @@ async def main() -> None:
     runner = web.AppRunner(app)
     await runner.setup()
 
-    # ВАЖНО — устанавливаем webhook
-    webhook_url = f"https://helper-bot-sudg.onrender.com{WEBHOOK_PATH}"
-    await bot.set_webhook(webhook_url, drop_pending_updates=True)
-    logging.info(f"Webhook set to: {webhook_url}")
-
     site = web.TCPSite(runner, host=WEB_SERVER_HOST, port=WEB_SERVER_PORT)
     await site.start()
+    logging.info(f"Web server started on port {WEB_SERVER_PORT}")
 
-    logging.info(f"Bot started as Web Service on port {WEB_SERVER_PORT}")
+    webhook_url = f"https://helper-bot-sudg.onrender.com{WEBHOOK_PATH}"
+    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.set_webhook(webhook_url)
+    logging.info(f"Webhook set to: {webhook_url}")
 
     while True:
         await asyncio.sleep(3600)
+
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
